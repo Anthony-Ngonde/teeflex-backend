@@ -1,31 +1,33 @@
 from flask import Flask
 from flask_restful import Api, Resource
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
 from config import DevConfig
 import os
+from database import db, migrate  
+from resources.gymequipment import GymEquipmentResource  
 
-# Initialize Flask app
+
 app = Flask(__name__)
 app.config.from_object(DevConfig)
 
-# Initialize SQLAlchemy and Migrate
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
-# Initialize Flask-Restful API
+db.init_app(app)
+migrate.init_app(app, db)
+
+
+
+
 api = Api(app)
 
-# Import models after db initialization
-import models
+# class HelloResource(Resource):
+#     def get(self):
+#         """Return a greeting message."""
+#         return {"message": "Hello, World!"}, 200
 
-# Test Resource
-class HelloResource(Resource):
-    def get(self):
-        return {"message": "Hello World"}
 
-api.add_resource(HelloResource, '/hello')
+# api.add_resource(HelloResource, '/hello') 
 
-# Run the app
+api.add_resource(GymEquipmentResource, '/equipment', '/equipment/<int:equipment_id>')
+
+
 if __name__ == '__main__':
     app.run()

@@ -1,5 +1,5 @@
 from datetime import datetime
-from main import db
+from database import db  
 
 class GymEquipment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
