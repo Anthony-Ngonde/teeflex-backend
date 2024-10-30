@@ -4,6 +4,7 @@ from config import DevConfig
 import os
 from database import db, migrate  
 from resources.gymequipment import GymEquipmentResource  
+from resources.paymentdetails import PaymentDetailsResource
 
 
 app = Flask(__name__)
@@ -24,9 +25,14 @@ api = Api(app)
 #         return {"message": "Hello, World!"}, 200
 
 
-# api.add_resource(HelloResource, '/hello') 
 
+
+
+# Endpoints
+# api.add_resource(HelloResource, '/hello') 
 api.add_resource(GymEquipmentResource, '/equipment', '/equipment/<int:equipment_id>')
+api.add_resource(PaymentDetailsResource, '/payments', '/payments/<int:payment_id>') 
+
 
 
 if __name__ == '__main__':
