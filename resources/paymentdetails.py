@@ -5,29 +5,38 @@ from models import PaymentDetails
 from datetime import datetime, timedelta
 
 
+
 class PaymentDetailsResource(Resource):
     def get(self, payment_id=None):
         """Retrieve all payment details or a specific payment by ID."""
         if payment_id is None:
             payments = PaymentDetails.query.all()
-            return [
-                {
+            result = []
+            for payment in payments:
+                if payment.expiry_date < datetime.utcnow():
+                    payment.status = 'Expired'
+                    db.session.commit()  # Save the updated status in the database
+                result.append({
                     'id': payment.id,
                     'name': payment.name,
                     'plan': payment.plan,
+                    'price': payment.price,  # Include price here
                     'paid_date': payment.paid_date.isoformat(),
                     'expiry_date': payment.expiry_date.isoformat(),
                     'status': payment.status
-                }
-                for payment in payments
-            ], 200
+                })
+            return result, 200
         else:
             payment = PaymentDetails.query.get(payment_id)
             if payment:
+                if payment.expiry_date < datetime.utcnow():
+                    payment.status = 'Expired'
+                    db.session.commit()
                 return {
                     'id': payment.id,
                     'name': payment.name,
                     'plan': payment.plan,
+                    'price': payment.price,  # Include price here
                     'paid_date': payment.paid_date.isoformat(),
                     'expiry_date': payment.expiry_date.isoformat(),
                     'status': payment.status
@@ -44,6 +53,7 @@ class PaymentDetailsResource(Resource):
         new_payment = PaymentDetails(
             name=data['name'],
             plan=data['plan'],
+            price=data['price'],  # Set price here
             paid_date=paid_date,
             expiry_date=expiry_date,
             status='Active'
@@ -61,12 +71,13 @@ class PaymentDetailsResource(Resource):
         data = request.get_json()
         payment.name = data.get('name', payment.name)
         payment.plan = data.get('plan', payment.plan)
+        payment.price = data.get('price', payment.price)  # Update price if provided
 
         # Update dates and status based on new plan
         plan_duration = {'Daily': 1, 'Weekly': 7, 'Monthly': 30}
         payment.paid_date = datetime.utcnow()
         payment.expiry_date = payment.paid_date + timedelta(days=plan_duration.get(payment.plan, 1))
-        payment.status = 'active' if payment.expiry_date > datetime.utcnow() else 'expired'
+        payment.status = 'Active' if payment.expiry_date > datetime.utcnow() else 'Expired'
 
         db.session.commit()
         return {'message': 'Payment details updated'}, 200

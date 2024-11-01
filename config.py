@@ -9,7 +9,6 @@ class Config:
 
 class DevConfig(Config):
     SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASE_DIR, 'instance', 'database.db')}"
-
     DEBUG = True
     SQLALCHEMY_ECHO = True
 
