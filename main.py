@@ -5,6 +5,7 @@ import os
 from database import db, migrate  
 from resources.gymequipment import GymEquipmentResource  
 from resources.paymentdetails import PaymentDetailsResource
+from resources.auth import SignUpResource, LoginResource
 
 
 app = Flask(__name__)
@@ -24,7 +25,9 @@ api = Api(app)
 # Endpoints
 
 api.add_resource(GymEquipmentResource, '/equipment', '/equipment/<int:equipment_id>')
-api.add_resource(PaymentDetailsResource, '/payments', '/payments/<int:payment_id>') 
+api.add_resource(PaymentDetailsResource, '/payments', '/payments/<int:payment_id>')
+api.add_resource(SignUpResource, '/signup')
+api.add_resource(LoginResource, '/login')
 
 
 
