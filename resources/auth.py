@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, jsonify
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
@@ -6,6 +6,7 @@ from database import db
 import jwt
 import datetime
 from config import DevConfig
+from flask_jwt_extended import create_access_token, create_refresh_token
 
 
 
@@ -28,14 +29,23 @@ class SignUpResource(Resource):
 class LoginResource(Resource):
     def post(self):
         data = request.get_json()
-        user = User.query.filter_by(email=data['email']).first()
+        
+        
+        username = data.get('username')
+        password = data.get('password')
 
-        if not user or not check_password_hash(user.password, data['password']):
-            return {'message': 'Invalid credentials'}, 401
+    
+        user = User.query.filter_by(username=username).first()
 
-        token = jwt.encode({
-            'user_id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
-        }, DevConfig.SECRET_KEY, algorithm="HS256")
+        if not user or not check_password_hash(user.password, password):
+            return jsonify({'message': 'Invalid credentials'}), 401
 
-        return {'message': 'Login successful', 'token': token}, 200
+    
+        access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=24))
+        refresh_token = create_refresh_token(identity=user.id)
+
+        return jsonify({
+            'message': 'Login successful',
+            'access_token': access_token,
+            'refresh_token': refresh_token
+        }), 200
