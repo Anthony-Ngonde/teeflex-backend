@@ -6,7 +6,7 @@ from database import db
 import jwt
 import datetime
 from config import DevConfig
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token
 
 
 
@@ -32,4 +32,26 @@ class SignUpResource(Resource):
         db.session.commit()
 
         return {"message": "User registered successfully"}, 201
+    
+
+class LoginResource(Resource):
+     def post(self):
+        data = request.get_json()
+        name = data.get('name')
+        password = data.get('password')
+
+        # Fetch the user
+        user = User.query.filter_by(name=name).first()
+        if not user or not check_password_hash(user.password, password):
+            return {"message": "Invalid credentials"}, 401
+
+        # Generate tokens
+        access_token = create_access_token(identity=user.id)
+        refresh_token = create_refresh_token(identity=user.id)
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }, 200
+
 
