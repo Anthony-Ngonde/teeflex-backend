@@ -13,39 +13,23 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 class SignUpResource(Resource):
     def post(self):
         data = request.get_json()
-        
-        if User.query.filter_by(email=data['email']).first():
-            return {'message': 'User already exists'}, 409
+        name = data.get('name')
+        email = data.get('email')
+        password = data.get('password')
 
-        hashed_password = generate_password_hash(data['password'], method='pbkdf2:sha256')
-        new_user = User(name=data['name'], email=data['email'], password=hashed_password)
+        
+        if User.query.filter_by(email=email).first():
+            return {"message": "User with this email already exists"}, 400
+
+        
+        hashed_password = generate_password_hash(password)
+
+        
+        new_user = User(name=name, email=email, password=hashed_password)
+
         
         db.session.add(new_user)
         db.session.commit()
 
-        return {'message': 'User registered successfully'}, 201
+        return {"message": "User registered successfully"}, 201
 
-
-class LoginResource(Resource):
-    def post(self):
-        data = request.get_json()
-        
-        
-        username = data.get('username')
-        password = data.get('password')
-
-    
-        user = User.query.filter_by(username=username).first()
-
-        if not user or not check_password_hash(user.password, password):
-            return jsonify({'message': 'Invalid credentials'}), 401
-
-    
-        access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(hours=24))
-        refresh_token = create_refresh_token(identity=user.id)
-
-        return jsonify({
-            'message': 'Login successful',
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }), 200

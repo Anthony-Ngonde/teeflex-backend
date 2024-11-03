@@ -5,7 +5,7 @@ import os
 from database import db, migrate  
 from resources.gymequipment import GymEquipmentResource  
 from resources.paymentdetails import PaymentDetailsResource
-from resources.auth import SignUpResource, LoginResource
+from resources.auth import SignUpResource
 
 
 app = Flask(__name__)
@@ -27,9 +27,9 @@ api = Api(app)
 api.add_resource(GymEquipmentResource, '/equipment', '/equipment/<int:equipment_id>')
 api.add_resource(PaymentDetailsResource, '/payments', '/payments/<int:payment_id>')
 api.add_resource(SignUpResource, '/signup')
-api.add_resource(LoginResource, '/login')
+# api.add_resource(LoginResource, '/login')
 
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
