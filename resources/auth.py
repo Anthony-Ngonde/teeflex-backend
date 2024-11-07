@@ -19,7 +19,7 @@ class SignUpResource(Resource):
 
         
         if User.query.filter_by(email=email).first():
-            return {"message": "User with this email already exists"}, 400
+            return {"message": "Member with this email already exists"}, 400
 
         
         hashed_password = generate_password_hash(password)
@@ -31,7 +31,53 @@ class SignUpResource(Resource):
         db.session.add(new_user)
         db.session.commit()
 
-        return {"message": "User registered successfully"}, 201
+        return {"message": "Member registered successfully"}, 201
+    
+    def get(self, id=None):
+        if id:
+            user = User.query.get(id)
+            if user:
+                return {
+                    "id": user.id,
+                    "name": user.name,
+                    "email": user.email
+                }, 200
+            return {"message": "Member not found"}, 404
+        else:
+            users = User.query.all()
+            users_data = [
+                {"id": user.id, "name": user.name, "email": user.email}
+                for user in users
+            ]
+            return {"users": users_data}, 200
+
+    def put(self, id):
+        data = request.get_json()
+        user = User.query.get(id)
+
+        if not user:
+            return {"message": "Member not found"}, 404
+
+        # Update user details
+        user.name = data.get('name', user.name)
+        user.email = data.get('email', user.email)
+        
+        if 'password' in data:
+            user.password = generate_password_hash(data['password'])
+
+        db.session.commit()
+        return {"message": "Member updated successfully"}, 200
+
+    def delete(self, id):
+        user = User.query.get(id)
+
+        if not user:
+            return {"message": "Member not found"}, 404
+
+        db.session.delete(user)
+        db.session.commit()
+        return {"message": "Member deleted successfully"}, 200
+
     
 
 class LoginResource(Resource):
@@ -40,12 +86,11 @@ class LoginResource(Resource):
         name = data.get('name')
         password = data.get('password')
 
-        # Fetch the user
         user = User.query.filter_by(name=name).first()
         if not user or not check_password_hash(user.password, password):
             return {"message": "Invalid credentials"}, 401
 
-        # Generate tokens
+
         access_token = create_access_token(identity=user.id)
         refresh_token = create_refresh_token(identity=user.id)
 
