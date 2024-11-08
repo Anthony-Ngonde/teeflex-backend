@@ -1,7 +1,6 @@
 from flask import request
 from flask_restful import Resource
-from database import db 
-from models import PaymentDetails
+from models import db,PaymentDetails
 from datetime import datetime, timedelta
 
 

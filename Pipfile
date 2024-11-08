@@ -12,6 +12,7 @@ python-decouple = "*"
 flask-cors = "*"
 flask-migrate = "*"
 python-dotenv = "*"
+sqlalchemy-serializer = "*"
 
 [dev-packages]
 

@@ -2,10 +2,10 @@ from flask import request, jsonify
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
-from database import db
+from models import db
 import jwt
 import datetime
-from config import DevConfig
+# from config import DevConfig
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token
 
 
