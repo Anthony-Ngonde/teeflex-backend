@@ -10,6 +10,8 @@ flask-sqlalchemy = "*"
 flask-jwt-extended = "*"
 python-decouple = "*"
 flask-cors = "*"
+flask-migrate = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
