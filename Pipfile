@@ -6,13 +6,6 @@ name = "pypi"
 [packages]
 flask = "*"
 flask-restful = "*"
-flask-sqlalchemy = "*"
-flask-jwt-extended = "*"
-python-decouple = "*"
-flask-cors = "*"
-flask-migrate = "*"
-python-dotenv = "*"
-sqlalchemy-serializer = "*"
 
 [dev-packages]
 
