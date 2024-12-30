@@ -1,5 +1,6 @@
 #Designing the GUI for the application
 #Importing the necessary libraries
+import os
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
@@ -18,10 +19,12 @@ app = Flask(__name__)
 #Initializing the API
 api = Api(app)
 
+#Configuring the app
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teeflex.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRET_KEY'] = 'super-secret'
+app.config['SECRET_KEY'] = os.environ.get('JWT_SECRET')
 
 
 #Binding the app to the db object
