@@ -1,7 +1,9 @@
 # Modelling the the database schema
+import re
 from sqlalchemy import MetaData
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy.orm import validates
 from datetime import datetime
 
 
@@ -21,6 +23,13 @@ metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
 
 
+class ValidationError(Exception):
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
+
+
 class Member(db.Model, SerializerMixin):
 
     # Defining the table
@@ -30,8 +39,23 @@ class Member(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     f_name = db.Column(db.String(80), nullable=False)
     l_name = db.Column(db.String(80), nullable=False)
-    phone_number = db.Column(db.String(50), nullable=False, unique=True)
+    phone_number = db.Column(db.String(15), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
+
+    # Ensuring the email being saved is a valid email
+    @validates('email')
+    def validate_email(self, key, email):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            raise ValidationError('Please enter a valid email address.')
+        return email
+
+    # Ensuring the phone number is always valid before saving it in the database
+    @validates('phone_number')
+    def validate_phone(self, key, phone_number):
+        if not re.match(r"^0[0-9]{9}$", phone_number):
+            raise ValidationError(
+                'Phone number must be a 10-digit number starting with 0')
+        return phone_number
 
 
 class Payment(db.Model, SerializerMixin):

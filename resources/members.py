@@ -1,7 +1,7 @@
 # The endpoint to perform all the CRUD operations
 from flask_restful import Resource, reqparse
 from sqlalchemy import and_, not_
-from models import db, Member
+from models import db, Member, ValidationError
 
 
 # TODO --> Check if the number is valid and also the email if it is valid
@@ -36,15 +36,19 @@ class MembersResource(Resource):
         if email:
             return {'message': "Email already in use"}, 422
 
-        new_member = Member(**data)
+        try:
+            new_member = Member(**data)
 
-        # add the new member instance
-        db.session.add(new_member)
+            # add the new member instance
+            db.session.add(new_member)
 
-        # Persisting the changes to the database
-        db.session.commit()
+            # Persisting the changes to the database
+            db.session.commit()
 
-        return {'message': 'New member added successfully'}
+            return {'message': 'New member added successfully'}
+
+        except ValidationError as e:
+            return {'message': str(e), 'status': 'fail'}, 422
 
     def get(self, id=None):
         # The endpoint to perform the get requests
@@ -59,10 +63,10 @@ class MembersResource(Resource):
             return {'members': all_data}
 
         else:
-          # If an id is passed we get the member with the given id
+            # If an id is passed we get the member with the given id
             one_member = Member.query.filter_by(id=id).first()
 
-          # Checking if of the given id even exists
+            # Checking if of the given id even exists
             if one_member == None:
                 return {'message': 'Member not found'}, 404
 
