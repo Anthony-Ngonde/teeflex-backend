@@ -45,7 +45,7 @@ class MembersResource(Resource):
             # Persisting the changes to the database
             db.session.commit()
 
-            return {'message': 'New member added successfully'}
+            return {'message': 'New member added successfully'},201
 
         except ValidationError as e:
             return {'message': str(e), 'status': 'fail'}, 422

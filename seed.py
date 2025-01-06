@@ -20,11 +20,11 @@ with app.app_context():
     print('New member added')
 
     print('Seeding new payment')
-    
+
     new_payment = Payment(phone_number='0758431218',
                           transaction_id='075934122', plan='monthly',
                           amount=500,
-                          date=datetime.strptime('2024-05-01','%Y-%m-%d'), member_id=member.id)
+                          date=datetime.strptime('2024-05-01', '%Y-%m-%d'), member_id=member.id)
     db.session.add(new_payment)
     db.session.commit()
 
