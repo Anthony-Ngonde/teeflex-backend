@@ -89,6 +89,7 @@ class MembersResource(Resource):
         if email:
             return {'message': "Email already exists"}
 
+        # Checkign if the phone number we are trying to edit already exist in our database too
         phone_number = db.session.query(Member).filter(
             and_(Member.phone_number == data['phone_number'],
                  not_(Member.id == id)
