@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 class PaymentDetailsResource(Resource):
     def get(self, payment_id=None):
-        """Retrieve all payment details or a specific payment by ID."""
+        """Retrieve all payment details or a specific  payment by ID."""
         if payment_id is None:
             payments = PaymentDetails.query.all()
             result = []
@@ -43,8 +43,8 @@ class PaymentDetailsResource(Resource):
                 }, 200
             return {'message': 'Payment details not found'}, 404
 
+    
     def post(self):
-        """Create a new payment detail entry."""
         data = request.get_json()
         plan_duration = {'Daily': 1, 'Weekly': 7, 'Monthly': 30}
         paid_date = datetime.utcnow()
@@ -53,14 +53,25 @@ class PaymentDetailsResource(Resource):
         new_payment = PaymentDetails(
             name=data['name'],
             plan=data['plan'],
-            price=data['price'],  # Set price here
+            price=data['price'],
             paid_date=paid_date,
             expiry_date=expiry_date,
             status='Active'
         )
         db.session.add(new_payment)
         db.session.commit()
-        return {'message': 'Payment detail created', 'id': new_payment.id}, 201
+        
+        return {
+            'message': 'Payment detail created',
+            'id': new_payment.id,
+            'name': new_payment.name,
+            'plan': new_payment.plan,
+            'price': new_payment.price,
+            'paid_date': new_payment.paid_date.isoformat(),
+            'expiry_date': new_payment.expiry_date.isoformat(),
+            'status': new_payment.status
+        }, 201
+    
 
     def put(self, payment_id):
         """Update an existing payment detail entry."""
