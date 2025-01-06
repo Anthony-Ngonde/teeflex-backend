@@ -89,7 +89,7 @@ class MembersResource(Resource):
         if email:
             return {'message': "Email already exists"}
 
-        # Checkign if the phone number we are trying to edit already exist in our database too
+        # Checking if the phone number we are trying to edit already exist in our database too
         phone_number = db.session.query(Member).filter(
             and_(Member.phone_number == data['phone_number'],
                  not_(Member.id == id)
@@ -105,3 +105,16 @@ class MembersResource(Resource):
         db.session.commit()
 
         return {'message': 'Member details updated successfully'}
+
+    def delete(self, id):
+        # The endpoint to delete the member instance from our database
+        member = Member.query.filter_by(id=id).first()
+
+        if member == None:
+            return {'message': 'Member not found'}, 404
+
+        db.session.delete(member)
+
+        db.session.commit()
+
+        return {'message': "Member removed successfully"}
