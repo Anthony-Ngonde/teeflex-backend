@@ -4,7 +4,7 @@ from sqlalchemy import and_, not_
 from models import db, Member, ValidationError
 
 
-# TODO --> Check if the number is valid and also the email if it is valid
+
 class MembersResource(Resource):
 
     # Create a nre instance of reqparse

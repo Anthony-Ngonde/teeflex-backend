@@ -42,6 +42,9 @@ class Member(db.Model, SerializerMixin):
     phone_number = db.Column(db.String(15), nullable=False, unique=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
 
+    # Defining the relationship
+    payment = db.relationship('Payment', back_populates='member')
+
     # Ensuring the email being saved is a valid email
     @validates('email')
     def validate_email(self, key, email):
@@ -64,7 +67,12 @@ class Payment(db.Model, SerializerMixin):
     __tablename__ = 'payments'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False)
+    phone_number = db.Column(db.String, nullable=False)
+    transaction_id = db.Column(db.String(10), nullable=False, unique=True)
     plan = db.Column(db.String, nullable=False)
     amount = db.Column(db.Integer, nullable=False)
     date = db.Column(db.DateTime)
+    member_id = db.Column(db.Integer, db.ForeignKey(
+        'members.id'), nullable=False)
+
+    member = db.relationship('Member', back_populates='payment')

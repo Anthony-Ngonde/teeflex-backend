@@ -1,104 +1,56 @@
-from flask import request
-from flask_restful import Resource
-from database import db 
-from models import PaymentDetails
-from datetime import datetime, timedelta
+# Endpoint for performing CRUD operations on payments
+from flask_restful import Resource, reqparse
+from models import db, Payment, Member
+from datetime import datetime
 
 
+class PaymentResource(Resource):
+    parser = reqparse.RequestParser()
+    parser.add_argument(
+        'phone_number', help='Phone number is required', required=True, type=str)
+    parser.add_argument(
+        'transaction_id', help='Transaction id must be included', required=True, type=str)
+    parser.add_argument(
+        'plan', help='Plan taken by the member is required', required=True, type=str)
+    parser.add_argument('amount', help='Add amount', required=True, type=int)
+    parser.add_argument('date', help='Date is required',
+                        required=True, type=str)
 
-class PaymentDetailsResource(Resource):
-    def get(self, payment_id=None):
-        """Retrieve all payment details or a specific  payment by ID."""
-        if payment_id is None:
-            payments = PaymentDetails.query.all()
-            result = []
-            for payment in payments:
-                if payment.expiry_date < datetime.utcnow():
-                    payment.status = 'Expired'
-                    db.session.commit()  # Save the updated status in the database
-                result.append({
-                    'id': payment.id,
-                    'name': payment.name,
-                    'plan': payment.plan,
-                    'price': payment.price,  # Include price here
-                    'paid_date': payment.paid_date.isoformat(),
-                    'expiry_date': payment.expiry_date.isoformat(),
-                    'status': payment.status
-                })
-            return result, 200
-        else:
-            payment = PaymentDetails.query.get(payment_id)
-            if payment:
-                if payment.expiry_date < datetime.utcnow():
-                    payment.status = 'Expired'
-                    db.session.commit()
-                return {
-                    'id': payment.id,
-                    'name': payment.name,
-                    'plan': payment.plan,
-                    'price': payment.price,  # Include price here
-                    'paid_date': payment.paid_date.isoformat(),
-                    'expiry_date': payment.expiry_date.isoformat(),
-                    'status': payment.status
-                }, 200
-            return {'message': 'Payment details not found'}, 404
-
-    
     def post(self):
-        data = request.get_json()
-        plan_duration = {'Daily': 1, 'Weekly': 7, 'Monthly': 30}
-        paid_date = datetime.utcnow()
-        expiry_date = paid_date + timedelta(days=plan_duration.get(data['plan'], 1))
-        
-        new_payment = PaymentDetails(
-            name=data['name'],
+        # Endpoint for adding new payment
+        data = PaymentResource.parser.parse_args()
+
+        # Checking if the transaction id is already available in our database to avoid duplication
+        payment_id = Payment.query.filter_by(
+            transaction_id=data['transaction_id']).first()
+        # Checking if the payment id is already in our database
+        if payment_id:
+            return {'message': 'Payment id is already used'}
+
+        # Making sure the user with the given number even exists
+
+        phone_no = Member.query.filter_by(phone_number=data['phone_number']).first()
+
+        if not phone_no:
+            return {'message': 'Member does not exist'}
+
+        # Parse the date into a datetime object
+        try:
+            payment_date = datetime.strptime(data['date'], '%Y-%m-%d')
+        except ValueError:
+            return {'message': 'Invalid date format'}
+
+        new_payment = Payment(
+            phone_number=data['phone_number'],
+            transaction_id=data['transaction_id'],
             plan=data['plan'],
-            price=data['price'],
-            paid_date=paid_date,
-            expiry_date=expiry_date,
-            status='Active'
+            amount=data['amount'],
+            date=payment_date,
+            member_id=phone_no.id
         )
+
         db.session.add(new_payment)
-        db.session.commit()
-        
-        return {
-            'message': 'Payment detail created',
-            'id': new_payment.id,
-            'name': new_payment.name,
-            'plan': new_payment.plan,
-            'price': new_payment.price,
-            'paid_date': new_payment.paid_date.isoformat(),
-            'expiry_date': new_payment.expiry_date.isoformat(),
-            'status': new_payment.status
-        }, 201
-    
-
-    def put(self, payment_id):
-        """Update an existing payment detail entry."""
-        payment = PaymentDetails.query.get(payment_id)
-        if not payment:
-            return {'message': 'Payment details not found'}, 404
-
-        data = request.get_json()
-        payment.name = data.get('name', payment.name)
-        payment.plan = data.get('plan', payment.plan)
-        payment.price = data.get('price', payment.price)  # Update price if provided
-
-        # Update dates and status based on new plan
-        plan_duration = {'Daily': 1, 'Weekly': 7, 'Monthly': 30}
-        payment.paid_date = datetime.utcnow()
-        payment.expiry_date = payment.paid_date + timedelta(days=plan_duration.get(payment.plan, 1))
-        payment.status = 'Active' if payment.expiry_date > datetime.utcnow() else 'Expired'
 
         db.session.commit()
-        return {'message': 'Payment details updated'}, 200
 
-    def delete(self, payment_id):
-        """Delete a payment detail entry."""
-        payment = PaymentDetails.query.get(payment_id)
-        if not payment:
-            return {'message': 'Payment details not found'}, 404
-
-        db.session.delete(payment)
-        db.session.commit()
-        return {'message': 'Payment detail deleted'}, 200
+        return {'message': "Payment added"}
