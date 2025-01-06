@@ -1,35 +1,20 @@
-from datetime import datetime
-from database import db  
+# Modelling the the database schema
+from sqlalchemy import MetaData
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_serializer import SerializerMixin
 
-class GymEquipment(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    equipment_type = db.Column(db.String(50), nullable=False)  
-    quantity = db.Column(db.Integer, nullable=False)
-    description = db.Column(db.String(200))
 
-    def __repr__(self):
-        return f'<GymEquipment {self.name}>'
-    
+# To ensure consistency in the naming of the constraints, we can define a naming convention that will be used by SQLAlchemy.
+convention = {
+    "ix": 'ix_%(column_0_label)s',
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
 
-class PaymentDetails(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False) 
-    plan = db.Column(db.String(20), nullable=False)  
-    price = db.Column(db.Integer, nullable=False)
-    paid_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    expiry_date = db.Column(db.DateTime, nullable=False)
-    status = db.Column(db.String(10), nullable=False) 
+# We then pass the naming convention to the MetaData object
+metadata = MetaData(naming_convention=convention)
 
-    def __repr__(self):
-        return f'<PaymentDetails {self.name} - {self.plan}>'
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(200), nullable=False) 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def __repr__(self):
-        return f'<User {self.name}>'
+# We then create an instance of the SQLAlchemy class and pass the metadata object to it
+db = SQLAlchemy(metadata=metadata)
