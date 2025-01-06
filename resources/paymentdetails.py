@@ -65,3 +65,11 @@ class PaymentResource(Resource):
             all_payments = Payment.query.all()
 
             return [payments.to_dict() for payments in all_payments]
+
+        # Fetchin a single payment
+        if id:
+            payment = Payment.query.filter_by(id=id).first()
+
+            if payment == None:
+                return {'message': 'Payment not found'}
+            return payment.to_dict()
