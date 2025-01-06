@@ -46,7 +46,9 @@ class MembersResource(Resource):
         return {'message': 'New member added successfully'}
 
     def get(self, id=None):
+        # The endpoint to perform the get requests
 
+        # If an id is not passed we query all the members
         if id == None:
             all_members = Member.query.all()
 
@@ -58,8 +60,10 @@ class MembersResource(Resource):
             return {'members': all_data}
 
         else:
+          # If an id is passed we get the member with the given id
             one_member = Member.query.filter_by(id=id).first()
 
+          # Checking if of the given id even exists
             if one_member == None:
                 return {'message': 'Member not found'}, 404
 
