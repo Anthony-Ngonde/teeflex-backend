@@ -1,5 +1,6 @@
 # The endpoint to perform all the CRUD operations
 from flask_restful import Resource, reqparse
+from sqlalchemy import and_, not_
 from models import db, Member
 
 
@@ -68,3 +69,38 @@ class MembersResource(Resource):
                 return {'message': 'Member not found'}, 404
 
             return one_member.to_dict()
+
+    def patch(self, id):
+
+        # This the endpoint for allowing editing a given resource
+        data = self.parser.parse_args()
+
+        member = Member.query.filter_by(id=id).first()
+
+        if member == None:
+            return {'message': 'Member not found'}, 404
+
+        # Checking if the email we are trying to edit already exists in our database
+        email = db.session.query(Member).filter(
+            and_(Member.email == data['email'],
+                 not_(Member.id == id))
+        ).first()
+
+        if email:
+            return {'message': "Email already exists"}
+
+        phone_number = db.session.query(Member).filter(
+            and_(Member.phone_number == data['phone_number'],
+                 not_(Member.id == id)
+                 )
+        ).first()
+
+        if phone_number:
+            return {'message': "Phone number already exists"}
+
+        for key in data.keys():
+            setattr(member, key, data[key])
+
+        db.session.commit()
+
+        return {'message': 'Member details updated successfully'}
