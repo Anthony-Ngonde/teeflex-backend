@@ -53,10 +53,8 @@ class MembersResource(Resource):
         if id == None:
             all_members = Member.query.all()
 
-            all_data = []
-
-            for members in all_members:
-                all_data.append(members.to_dict())
+            # Using the list comprehension method
+            all_data = [member.to_dict() for member in all_members]
 
             return {'members': all_data}
 
