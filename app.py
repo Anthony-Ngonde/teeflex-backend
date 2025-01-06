@@ -13,6 +13,7 @@ from models import db
 
 # Importing our endpoint
 from resources.hello import HelloResource
+from resources.members import MembersResource
 
 app = Flask(__name__)
 
@@ -44,3 +45,4 @@ jwt = JWTManager(app)
 
 # Creating an API object
 api.add_resource(HelloResource, '/')
+api.add_resource(MembersResource, '/members')
