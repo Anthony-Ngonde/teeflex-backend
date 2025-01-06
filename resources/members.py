@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse
 from models import db, Member
 
 
+# TODO --> Check if the number is valid and also the email if it is valid
 class MembersResource(Resource):
 
     # Create a nre instance of reqparse
@@ -43,3 +44,23 @@ class MembersResource(Resource):
         db.session.commit()
 
         return {'message': 'New member added successfully'}
+
+    def get(self, id=None):
+
+        if id == None:
+            all_members = Member.query.all()
+
+            all_data = []
+
+            for members in all_members:
+                all_data.append(members.to_dict())
+
+            return {'members': all_data}
+
+        else:
+            one_member = Member.query.filter_by(id=id).first()
+
+            if one_member == None:
+                return {'message': 'Member not found'}, 404
+
+            return one_member.to_dict()

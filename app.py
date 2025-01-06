@@ -45,4 +45,4 @@ jwt = JWTManager(app)
 
 # Creating an API object
 api.add_resource(HelloResource, '/')
-api.add_resource(MembersResource, '/members')
+api.add_resource(MembersResource, '/members', '/members/<int:id>')
