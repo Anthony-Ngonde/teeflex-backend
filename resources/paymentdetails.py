@@ -113,3 +113,15 @@ class PaymentResource(Resource):
         db.session.commit()
 
         return {'message': "Payment details updated successfully"}
+
+    def delete(self, id):
+        # We check if the payment even exists
+        payment = Payment.query.filter_by(id=id).first()
+
+        if payment == None:
+            return {'message': "No payment to be deleted"}
+
+        db.session.delete(payment)
+        db.session.commit()
+
+        return {'message': "Payment deleted successfuly"}
