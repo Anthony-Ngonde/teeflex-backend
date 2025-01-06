@@ -75,4 +75,8 @@ class Payment(db.Model, SerializerMixin):
     member_id = db.Column(db.Integer, db.ForeignKey(
         'members.id'), nullable=False)
 
+    # Serialize rules
+    serialize_only = ('phone_number', 'transaction_id',
+                      'plan', 'amount', 'date')
+
     member = db.relationship('Member', back_populates='payment')

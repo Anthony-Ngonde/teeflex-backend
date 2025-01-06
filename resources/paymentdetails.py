@@ -29,7 +29,8 @@ class PaymentResource(Resource):
 
         # Making sure the user with the given number even exists
 
-        phone_no = Member.query.filter_by(phone_number=data['phone_number']).first()
+        phone_no = Member.query.filter_by(
+            phone_number=data['phone_number']).first()
 
         if not phone_no:
             return {'message': 'Member does not exist'}
@@ -54,3 +55,13 @@ class PaymentResource(Resource):
         db.session.commit()
 
         return {'message': "Payment added"}
+
+    def get(self, id=None):
+
+        # Endpoint for getting payments:
+
+        # Fetching all payments that have been made
+        if id == None:
+            all_payments = Payment.query.all()
+
+            return [payments.to_dict() for payments in all_payments]
