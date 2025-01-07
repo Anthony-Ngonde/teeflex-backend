@@ -1,6 +1,7 @@
 # Endpoint to check on whether the user has an active subscription or not
 from flask_restful import Resource, reqparse
-from models import db, Active
+from models import db, Active, Payment
+from datetime import datetime
 
 
 class ActiveResource(Resource):
@@ -14,22 +15,34 @@ class ActiveResource(Resource):
         'expiry_date', help='Expiry date', required=True, type=str)
     parser.add_argument(
         'user_id', help='User id is required', required=True, type=int)
-    
-    
-    def get(self,id=None):
-        
-        #The endpoint to fetch the active members
-        
-        #This will query for us all the information about all active users
-        if id == None:
-            active_members = Active.query.all()
-            
-            return [active.to_dict() for active in active_members]
 
-        else:
-            active_member = Active.query.filter_by(id=id).first()
-            
-            if active_member == None:
-                return {'message':'No such member','status':'fail'},404
-            return active_member.to_dict()
-        
+    def get(self, id=None):
+
+        current_date = datetime.now()
+
+        # Query all active members and update their status if expired
+        all_active_members = Active.query.all()
+
+        for member in all_active_members:
+
+            '''
+            I ran into a problem 'TypeError: must be string, not datetime.datetime when using strptime'
+            The solution i got was to first convert the date and time to a string before passing it into the strptime
+            '''
+            # print(f'Line 27:{type(member.expiry_date)}')
+            convt_date = str(member.expiry_date)
+            expiry_date = datetime.strptime(convt_date, '%Y-%m-%d %H:%M:%S')
+
+            if current_date >= expiry_date and member.status:
+                member.status = False
+                db.session.commit()
+
+        # Fetch and return all members or a specific member
+        if id is None:
+            return [member.to_dict() for member in all_active_members]
+
+        active_member = Active.query.filter_by(id=id).first()
+        if active_member is None:
+            return {'message': 'No such member', 'status': 'fail'}, 404
+
+        return active_member.to_dict()
