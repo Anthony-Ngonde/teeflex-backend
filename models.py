@@ -44,7 +44,7 @@ class Member(db.Model, SerializerMixin):
 
     # Defining the relationship
     payment = db.relationship('Payment', back_populates='member')
-    active = db.relationship('Active', back_populates='user')
+    
     
 
     # Ensuring the email being saved is a valid email
@@ -73,15 +73,16 @@ class Payment(db.Model, SerializerMixin):
     transaction_id = db.Column(db.String(10), nullable=False, unique=True)
     plan = db.Column(db.String, nullable=False)
     amount = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime)
+    date = db.Column(db.DateTime,nullable=False)
     member_id = db.Column(db.Integer, db.ForeignKey(
         'members.id'), nullable=False)
 
     # Serialize rules
     serialize_only = ('phone_number', 'transaction_id',
-                      'plan', 'amount', 'date')
+                      'plan', 'amount', 'date','member_id')
 
     member = db.relationship('Member', back_populates='payment')
+    active = db.relationship('Active', back_populates='user')
     
 
 
@@ -95,9 +96,9 @@ class Active(db.Model, SerializerMixin):
     date_paid = db.Column(db.DateTime, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(
-        'members.id'), nullable=False)
+        'payments.id'), nullable=False)
     
     #Serializer rules
     serialize_only = ('status','date_paid','expiry_date','user_id')
 
-    user = db.relationship('Member', back_populates='active')
+    user = db.relationship('Payment', back_populates='active')

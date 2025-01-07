@@ -1,6 +1,6 @@
 # Endpoint to check on whether the user has an active subscription or not
 from flask_restful import Resource, reqparse
-from models import db, Active, Payment
+from models import db, Active, Payment, Member
 from datetime import datetime
 
 
