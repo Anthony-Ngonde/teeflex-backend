@@ -44,10 +44,9 @@ class Member(db.Model, SerializerMixin):
 
     # Defining the relationship
     payment = db.relationship('Payment', back_populates='member')
-    
-    
 
     # Ensuring the email being saved is a valid email
+
     @validates('email')
     def validate_email(self, key, email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
@@ -73,17 +72,16 @@ class Payment(db.Model, SerializerMixin):
     transaction_id = db.Column(db.String(10), nullable=False, unique=True)
     plan = db.Column(db.String, nullable=False)
     amount = db.Column(db.Integer, nullable=False)
-    date = db.Column(db.DateTime,nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
     member_id = db.Column(db.Integer, db.ForeignKey(
         'members.id'), nullable=False)
 
     # Serialize rules
     serialize_only = ('phone_number', 'transaction_id',
-                      'plan', 'amount', 'date','member_id')
+                      'plan', 'amount', 'date', 'member_id')
 
     member = db.relationship('Member', back_populates='payment')
     active = db.relationship('Active', back_populates='user')
-    
 
 
 # Table to keep track of the active members
@@ -97,8 +95,20 @@ class Active(db.Model, SerializerMixin):
     expiry_date = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(
         'payments.id'), nullable=False)
-    
-    #Serializer rules
-    serialize_only = ('status','date_paid','expiry_date','user_id')
+
+    # Serializer rules
+    serialize_only = ('status', 'date_paid', 'expiry_date', 'user_id')
 
     user = db.relationship('Payment', back_populates='active')
+
+
+class Notification(db.Model, SerializerMixin):
+
+    # Class/Table to keep track of any notifications
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)  # Short description
+    message = db.Column(db.Text, nullable=False)  # Detailed info
+    # e.g payment, 'member'
+    category = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)  # Track read/unread state

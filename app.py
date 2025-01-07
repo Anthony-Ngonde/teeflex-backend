@@ -16,6 +16,7 @@ from resources.hello import HelloResource
 from resources.members import MembersResource
 from resources.paymentdetails import PaymentResource
 from resources.active import ActiveResource
+from resources.notifications import NotificationResource
 
 app = Flask(__name__)
 
@@ -50,3 +51,4 @@ api.add_resource(HelloResource, '/')
 api.add_resource(MembersResource, '/members', '/members/<int:id>')
 api.add_resource(PaymentResource, '/payments', '/payments/<int:id>')
 api.add_resource(ActiveResource, '/actives', '/actives/<int:id>')
+api.add_resource(NotificationResource, '/notifications')

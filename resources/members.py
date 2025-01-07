@@ -1,8 +1,7 @@
 # The endpoint to perform all the CRUD operations
 from flask_restful import Resource, reqparse
 from sqlalchemy import and_, not_
-from models import db, Member, ValidationError
-
+from models import db, Member, ValidationError, Notification
 
 
 class MembersResource(Resource):
@@ -45,7 +44,17 @@ class MembersResource(Resource):
             # Persisting the changes to the database
             db.session.commit()
 
-            return {'message': 'New member added successfully'}
+            # Add a notification
+            new_notification = Notification(
+                title='New gym member',
+                message=f'Member {data['f_name']} has been added ',
+                category='member'
+            )
+
+            db.session.add(new_notification)
+            db.session.commit()
+
+            return {'message': 'New gym member added successfully'}
 
         except ValidationError as e:
             return {'message': str(e), 'status': 'fail'}, 422

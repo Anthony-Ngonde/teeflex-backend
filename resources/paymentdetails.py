@@ -1,7 +1,7 @@
 # Endpoint for performing CRUD operations on payments
 from flask_restful import Resource, reqparse
 from sqlalchemy import and_, not_
-from models import db, Payment, Member, Active
+from models import db, Payment, Member, Active,Notification
 from datetime import datetime, timedelta
 
 
@@ -85,7 +85,15 @@ class PaymentResource(Resource):
                 user_id=member.id
             )
             db.session.add(new_active)
+            
+            #Add a notification 
+            new_notification = Notification(
+                title = 'New payment made',
+                message = f'Payment by member {member} confirmed',
+                category = 'payment'
+            )
 
+            db.session.add(new_notification)
         # Commit the transaction
         db.session.commit()
 

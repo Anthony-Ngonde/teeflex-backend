@@ -46,3 +46,5 @@ class ActiveResource(Resource):
             return {'message': 'No such member', 'status': 'fail'}, 404
 
         return active_member.to_dict()
+
+    # TODO --> Send SMS to users whose subscription is almost over
