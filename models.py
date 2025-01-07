@@ -96,5 +96,8 @@ class Active(db.Model, SerializerMixin):
     expiry_date = db.Column(db.DateTime, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(
         'members.id'), nullable=False)
+    
+    #Serializer rules
+    serialize_only = ('status','date_paid','expiry_date','user_id')
 
     user = db.relationship('Member', back_populates='active')

@@ -15,6 +15,7 @@ from models import db
 from resources.hello import HelloResource
 from resources.members import MembersResource
 from resources.paymentdetails import PaymentResource
+from resources.active import ActiveResource
 
 app = Flask(__name__)
 
@@ -48,3 +49,4 @@ jwt = JWTManager(app)
 api.add_resource(HelloResource, '/')
 api.add_resource(MembersResource, '/members', '/members/<int:id>')
 api.add_resource(PaymentResource, '/payments', '/payments/<int:id>')
+api.add_resource(ActiveResource,'/active')
