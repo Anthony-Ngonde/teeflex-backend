@@ -20,7 +20,16 @@ class ActiveResource(Resource):
         
         #The endpoint to fetch the active members
         
+        #This will query for us all the information about all active users
         if id == None:
             active_members = Active.query.all()
             
             return [active.to_dict() for active in active_members]
+
+        else:
+            active_member = Active.query.filter_by(id=id).first()
+            
+            if active_member == None:
+                return {'message':'No such member','status':'fail'},404
+            return active_member.to_dict()
+        
