@@ -16,7 +16,7 @@ from resources.hello import HelloResource
 from resources.members import MembersResource
 from resources.paymentdetails import PaymentResource
 from resources.active import ActiveResource
-from resources.notifications import NotificationResource
+from resources.notifications import NotificationResource,MarkNotificationReadResource
 
 app = Flask(__name__)
 
@@ -46,9 +46,13 @@ bcrypt = Bcrypt(app)
 # Initializing the JWTManager object
 jwt = JWTManager(app)
 
+
 # Creating an API object
 api.add_resource(HelloResource, '/')
 api.add_resource(MembersResource, '/members', '/members/<int:id>')
 api.add_resource(PaymentResource, '/payments', '/payments/<int:id>')
 api.add_resource(ActiveResource, '/actives', '/actives/<int:id>')
-api.add_resource(NotificationResource, '/notifications','/notifications/<int:id>')
+api.add_resource(NotificationResource, '/notifications')
+api.add_resource(MarkNotificationReadResource,'/notification/<int:id>')
+
+
