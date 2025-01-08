@@ -1,6 +1,7 @@
 # Modelling the the database schema
 import re
 from sqlalchemy import MetaData
+from flask_bcrypt import check_password_hash, generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
@@ -28,6 +29,50 @@ class ValidationError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+
+class Admin(db.Model, SerializerMixin):
+
+    __tablename__ = 'admins'
+
+    id = db.Column(db.Integer, primary_key=True)
+    first_name = db.Column(db.String, nullable=False)
+    last_name = db.Column(db.String, nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(60), nullable=False)
+
+    # Ensuring the email is in the correct format before adding it to our database
+    @validates('email')
+    def validate_email(self, key, email):
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            raise ValidationError('Please enter a valid email address.')
+        return email
+
+    # Checking the strength of the password
+    @validates('password')
+    def password_strength(self, key, password):
+
+        # Regular expressions for uppercase,lowercase and numeric characters
+        if len(password) < 8:
+            raise ValidationError(
+                'Password is too short, it should be have minimum of 8 characters'
+            )
+        if not re.search('[A-Z]', password):
+            raise ValidationError(
+                'Password must contain at least one uppercase letter'
+            )
+        if not re.search('[a-z]', password):
+            raise ValidationError(
+                'Password must contain at least on lowercase letter'
+            )
+        if not re.search('[0-9]', password):
+            raise ValidationError(
+                'Password must contain at least on number'
+            )
+
+    # Hashing the password before saving it to our database
+    def check_password(self, plain_password):
+        return check_password_hash(self.password, plain_password)
 
 
 class Member(db.Model, SerializerMixin):
