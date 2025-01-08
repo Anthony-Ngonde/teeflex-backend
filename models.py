@@ -39,8 +39,10 @@ class Admin(db.Model, SerializerMixin):
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     email = db.Column(db.String(120), nullable=False, unique=True)
-    password = db.Column(db.String(60), nullable=False)
+    password = db.Column(db.String(225), nullable=False)
 
+    #Serializer rules
+    serialize_rules=('-password',)
     # Ensuring the email is in the correct format before adding it to our database
     @validates('email')
     def validate_email(self, key, email):
@@ -69,6 +71,10 @@ class Admin(db.Model, SerializerMixin):
             raise ValidationError(
                 'Password must contain at least on number'
             )
+        
+         # Hashing the password before doing the validation
+        return generate_password_hash(password).decode('utf-8')
+
 
     # Hashing the password before saving it to our database
     def check_password(self, plain_password):

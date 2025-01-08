@@ -13,10 +13,11 @@ from models import db
 
 # Importing our endpoint
 from resources.hello import HelloResource
+from resources.admin import RegisterResource, LoginResource
 from resources.members import MembersResource
 from resources.paymentdetails import PaymentResource
 from resources.active import ActiveResource
-from resources.notifications import NotificationResource,MarkNotificationReadResource
+from resources.notifications import NotificationResource, MarkNotificationReadResource
 
 app = Flask(__name__)
 
@@ -49,10 +50,10 @@ jwt = JWTManager(app)
 
 # Creating an API object
 api.add_resource(HelloResource, '/')
+api.add_resource(RegisterResource, '/register')
+api.add_resource(LoginResource, '/login')
 api.add_resource(MembersResource, '/members', '/members/<int:id>')
 api.add_resource(PaymentResource, '/payments', '/payments/<int:id>')
 api.add_resource(ActiveResource, '/actives', '/actives/<int:id>')
 api.add_resource(NotificationResource, '/notifications')
-api.add_resource(MarkNotificationReadResource,'/notification/<int:id>')
-
-
+api.add_resource(MarkNotificationReadResource, '/notification/<int:id>')
