@@ -7,6 +7,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.orm import validates
 from datetime import datetime
 
+# TODO --> Check relationship of member and payment
 
 # To ensure consistency in the naming of the constraints, we can define a naming convention that will be used by SQLAlchemy.
 convention = {
@@ -41,9 +42,10 @@ class Admin(db.Model, SerializerMixin):
     email = db.Column(db.String(120), nullable=False, unique=True)
     password = db.Column(db.String(225), nullable=False)
 
-    #Serializer rules
-    serialize_rules=('-password',)
+    # Serializer rules
+    serialize_rules = ('-password',)
     # Ensuring the email is in the correct format before adding it to our database
+
     @validates('email')
     def validate_email(self, key, email):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
@@ -71,12 +73,12 @@ class Admin(db.Model, SerializerMixin):
             raise ValidationError(
                 'Password must contain at least on number'
             )
-        
+
          # Hashing the password before doing the validation
         return generate_password_hash(password).decode('utf-8')
 
-
     # Hashing the password before saving it to our database
+
     def check_password(self, plain_password):
         return check_password_hash(self.password, plain_password)
 

@@ -2,6 +2,8 @@
 from flask_restful import Resource
 from models import db, Notification
 
+# TODO --> Check the notification logic and ensure it works on realtime
+
 
 class NotificationResource(Resource):
 
