@@ -163,5 +163,5 @@ class Notification(db.Model, SerializerMixin):
     message = db.Column(db.Text, nullable=False)  # Detailed info
     # e.g payment, 'member'
     category = db.Column(db.String(50), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.now)
     is_read = db.Column(db.Boolean, default=False)  # Track read/unread state
