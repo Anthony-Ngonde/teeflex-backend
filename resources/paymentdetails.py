@@ -1,7 +1,7 @@
 # Endpoint for performing CRUD operations on payments
 from flask_restful import Resource, reqparse
 from sqlalchemy import and_, not_
-from models import db, Payment, Member, Active,Notification
+from models import db, Payment, Member, Active, Notification
 from datetime import datetime, timedelta
 
 
@@ -85,12 +85,12 @@ class PaymentResource(Resource):
                 user_id=member.id
             )
             db.session.add(new_active)
-            
-            #Add a notification 
+
+            # Add a notification
             new_notification = Notification(
-                title = 'New payment made',
-                message = f'Payment by member {member} confirmed',
-                category = 'payment'
+                title='New payment made',
+                message=f'Payment by member {member} confirmed',
+                category='payment'
             )
 
             db.session.add(new_notification)
@@ -157,9 +157,16 @@ class PaymentResource(Resource):
         return {'message': "Payment details updated successfully"}
 
     def delete(self, id):
+        '''
+        Found an error saying NOT NULL constraint failed :actives.user_id
+        '''
+        # When trying to delete this is the error i found and because the payment table is related to the actives table.
+
+        # So how did i solve it? I added cascade="all, delete-orphan" this line to the parent component to mean any deletion i make also appears on the child component
+
         # We check if the payment even exists
         payment = Payment.query.filter_by(id=id).first()
-
+        print(payment)
         if payment == None:
             return {'message': "No payment to be deleted"}
 

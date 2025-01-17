@@ -96,7 +96,7 @@ class Member(db.Model, SerializerMixin):
     email = db.Column(db.String(120), nullable=False, unique=True)
 
     # Defining the relationship
-    payment = db.relationship('Payment', back_populates='member')
+    payment = db.relationship('Payment', back_populates='member',cascade="all, delete-orphan")
 
     # Ensuring the email being saved is a valid email
 
@@ -134,7 +134,7 @@ class Payment(db.Model, SerializerMixin):
                       'plan', 'amount', 'date', 'member_id')
 
     member = db.relationship('Member', back_populates='payment')
-    active = db.relationship('Active', back_populates='user')
+    active = db.relationship('Active', back_populates='user',cascade="all, delete-orphan")
 
 
 # Table to keep track of the active members
