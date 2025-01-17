@@ -4,6 +4,7 @@ import os
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
+from flask_socketio import SocketIO
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
@@ -38,6 +39,9 @@ db.init_app(app)
 # Enabling CORS
 CORS(app)
 
+# Initializing socketIO
+socketio = SocketIO(app)
+
 # Migrating the database
 migrate = Migrate(app, db)
 
@@ -46,6 +50,14 @@ bcrypt = Bcrypt(app)
 
 # Initializing the JWTManager object
 jwt = JWTManager(app)
+
+
+@staticmethod
+def broadcast_notification(message):
+    '''
+    Broadcast a notification message to all connected clients via SocketIO
+    '''
+    socketio.emit('receive_notification', {'message': message}, broadcast=True)
 
 
 # Creating an API object
