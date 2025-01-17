@@ -3,7 +3,6 @@ from flask_restful import Resource
 from models import db, Notification
 
 
-
 # TODO --> Check the notification logic and ensure it works on realtime
 
 
@@ -15,8 +14,19 @@ class NotificationResource(Resource):
             Notification.created_at.desc()).all()
 
         return [notification.to_dict() for notification in notifications]
-    
-   
+
+    def delete(self, id):
+
+        notification = Notification.query.filter_by(id=id).first()
+
+        if notification == None:
+            return {'message': 'No notifications'}
+
+        
+        db.session.delete(notification)
+        db.session.commit()
+        return {'message': "Notification deleted"}
+
 
 class MarkNotificationReadResource(Resource):
 

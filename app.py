@@ -1,6 +1,7 @@
 # Designing the GUI for the application
 # Importing the necessary libraries
 import os
+from os import urandom
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
@@ -30,7 +31,7 @@ api = Api(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///teeflex.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRET_KEY'] = os.environ.get('JWT_SECRET')
+app.config['SECRET_KEY'] = urandom(24)
 
 
 # Binding the app to the db object
@@ -67,5 +68,6 @@ api.add_resource(LoginResource, '/login')
 api.add_resource(MembersResource, '/members', '/members/<int:id>')
 api.add_resource(PaymentResource, '/payments', '/payments/<int:id>')
 api.add_resource(ActiveResource, '/actives', '/actives/<int:id>')
-api.add_resource(NotificationResource, '/notifications')
+api.add_resource(NotificationResource, '/notifications',
+                 '/notification/<int:id>')
 api.add_resource(MarkNotificationReadResource, '/notification/<int:id>')
