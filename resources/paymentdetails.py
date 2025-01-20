@@ -18,29 +18,21 @@ class PaymentResource(Resource):
                         required=True, type=str)
 
     def post(self):
-        # Endpoint for adding new payment
         data = PaymentResource.parser.parse_args()
 
-        # Checking if the transaction id is already available in our database to avoid duplication
         payment_id = Payment.query.filter_by(
             transaction_id=data['transaction_id']).first()
-        # Checking if the payment id is already in our database
         if payment_id:
             return {'message': 'Payment id is already used'}, 400
 
-        # Making sure the user with the given number even exists
-
-        member = Member.query.filter_by(
-            phone_number=data['phone_number']).first()
-
+        member = Member.query.filter_by(phone_number=data['phone_number']).first()
         if not member:
             return {'message': 'Member does not exist'}
 
-        # Parse the date into a datetime object
         try:
             payment_date = datetime.strptime(data['date'], '%Y-%m-%d')
         except ValueError:
-            return {'message': 'Invalid date format'}
+            return {'message': 'Invalid date format'}, 400
 
         new_payment = Payment(
             phone_number=data['phone_number'],
@@ -50,54 +42,37 @@ class PaymentResource(Resource):
             date=payment_date,
             member_id=member.id
         )
-
         db.session.add(new_payment)
-
-        # Calculate the expiry date based on the plabe
 
         plan_duration = {
             "monthly": 30,
             "weekly": 7,
             "daily": 1
         }
-
         duration = plan_duration.get(data['plan'].lower())
-
         if not duration:
-            return {'message': "Invalid plan. Options are monthly,weekly,daily"}, 400
+            return {'message': "Invalid plan. Options are monthly, weekly, daily"}, 400
 
         expiry_date = payment_date + timedelta(duration)
 
-        # Update or create the member's active subscription
         active_subscription = Active.query.filter_by(user_id=member.id).first()
         if active_subscription:
-            # Extend the expiry date for an existing subscription
-            if active_subscription.expiry_date < expiry_date:
-                active_subscription.expiry_date = expiry_date
-                active_subscription.status = True  # Reactivate the user's subscription plan
-
+            active_subscription.status = True
+            active_subscription.date_paid = payment_date
+            active_subscription.expiry_date = expiry_date
+            active_subscription.name = f"{member.f_name} {member.l_name}"  # Update name
         else:
-            # Create an new active subscription
-            new_active = Active(
+            new_active_subscription = Active(
                 status=True,
                 date_paid=payment_date,
                 expiry_date=expiry_date,
-                user_id=member.id
+                user_id=new_payment.id,
+                name=f"{member.f_name} {member.l_name}"  # Add name
             )
-            db.session.add(new_active)
+            db.session.add(new_active_subscription)
 
-            # Add a notification
-            new_notification = Notification(
-                title='New payment made',
-                message=f'Payment by member {member} confirmed',
-                category='payment'
-            )
-
-            db.session.add(new_notification)
-        # Commit the transaction
         db.session.commit()
-
-        return {'message': 'Payment added', 'status': 'success'}, 201
+        return {'message': 'Payment added successfully and active subscription updated'}
 
     def get(self, id=None):
 

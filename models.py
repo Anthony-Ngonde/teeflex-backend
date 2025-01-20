@@ -137,20 +137,17 @@ class Payment(db.Model, SerializerMixin):
     active = db.relationship('Active', back_populates='user',cascade="all, delete-orphan")
 
 
-# Table to keep track of the active members
 class Active(db.Model, SerializerMixin):
-
     __tablename__ = 'actives'
 
     id = db.Column(db.Integer, primary_key=True)
     status = db.Column(db.Boolean, nullable=False, default=False)
     date_paid = db.Column(db.DateTime, nullable=False)
     expiry_date = db.Column(db.DateTime, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'payments.id'), nullable=False)
-
+    user_id = db.Column(db.Integer, db.ForeignKey('payments.id'), nullable=False)
+    name = db.Column(db.String, nullable=False)  
     # Serializer rules
-    serialize_only = ('status', 'date_paid', 'expiry_date', 'user_id')
+    serialize_only = ('status', 'date_paid', 'expiry_date', 'user_id', 'name')
 
     user = db.relationship('Payment', back_populates='active')
 
