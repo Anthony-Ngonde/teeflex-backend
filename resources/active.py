@@ -22,7 +22,7 @@ class ActiveResource(Resource):
 
         # Query all active members and update their status if expired
         all_active_members = Active.query.all()
-
+    
         for member in all_active_members:
 
             '''
@@ -39,12 +39,14 @@ class ActiveResource(Resource):
 
         # Fetch and return all members or a specific member
         if id is None:
+            # print(member.to_dict())
             return [member.to_dict() for member in all_active_members]
 
         active_member = Active.query.filter_by(id=id).first()
+       
         if active_member is None:
             return {'message': 'No such member', 'status': 'fail'}, 404
-
+        
         return active_member.to_dict()
 
     # TODO --> Send SMS to users whose subscription is almost over

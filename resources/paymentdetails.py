@@ -32,7 +32,8 @@ class PaymentResource(Resource):
 
         member = Member.query.filter_by(
             phone_number=data['phone_number']).first()
-
+        
+        print(member.f_name)
         if not member:
             return {'message': 'Member does not exist'}
 
@@ -52,7 +53,7 @@ class PaymentResource(Resource):
         )
 
         db.session.add(new_payment)
-
+        db.session.commit()
         # Calculate the expiry date based on the plabe
 
         plan_duration = {
@@ -85,17 +86,19 @@ class PaymentResource(Resource):
                 user_id=member.id
             )
             db.session.add(new_active)
+            db.session.commit()
 
             # Add a notification
             new_notification = Notification(
                 title='New payment made',
-                message=f'Payment by member {member} confirmed',
+                message=f'Payment by member {member.f_name} confirmed',
                 category='payment'
             )
-
+            print(f'This is a new {new_notification} at line')
+            # db.session.add(new_notification)
             db.session.add(new_notification)
-        # Commit the transaction
-        db.session.commit()
+            # Commit the transaction
+            db.session.commit()
 
         return {'message': 'Payment added', 'status': 'success'}, 201
 
