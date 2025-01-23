@@ -20,9 +20,13 @@ class ActiveResource(Resource):
 
         current_date = datetime.now()
 
+        #Getting all members in the database
+        members = Member.query.filter_by(id=id).first()
+        print(members)
+        
         # Query all active members and update their status if expired
         all_active_members = Active.query.all()
-    
+        
         for member in all_active_members:
 
             '''
@@ -40,10 +44,12 @@ class ActiveResource(Resource):
         # Fetch and return all members or a specific member
         if id is None:
             # print(member.to_dict())
-            return [member.to_dict() for member in all_active_members]
+            all_active = [member.to_dict() for member in all_active_members]
+            
+            return {'active':all_active}
 
         active_member = Active.query.filter_by(id=id).first()
-       
+        
         if active_member is None:
             return {'message': 'No such member', 'status': 'fail'}, 404
         

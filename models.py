@@ -82,8 +82,24 @@ class Admin(db.Model, SerializerMixin):
     def check_password(self, plain_password):
         return check_password_hash(self.password, plain_password)
 
+class RevokedToken(db.Model):
+    """
+    Model is used as a storage to keep invalid/revoked tokens.
+    Currently used for log out functionality.
+    """
+    __tablename__ = 'revoked_tokens'
+    
+    id = db.Column(db.Integer,primary_key=True)
+    jti = db.Column(db.String(120))
+    
+    @classmethod
+    def is_jti_blacklisted(cls,jti):
+        query = cls.query.filter_by(jti=jti).first()
+        
+        return bool(query) 
 
 class Member(db.Model, SerializerMixin):
+    
 
     # Defining the table
     __tablename__ = 'members'

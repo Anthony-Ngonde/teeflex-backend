@@ -2,6 +2,7 @@
 from flask_restful import Resource, reqparse
 from sqlalchemy import and_, not_
 from models import db, Member, ValidationError, Notification
+from flask_jwt_extended import jwt_required
 
 
 class MembersResource(Resource):
@@ -58,7 +59,8 @@ class MembersResource(Resource):
 
         except ValidationError as e:
             return {'message': str(e), 'status': 'fail'}, 422
-
+        
+    @jwt_required()
     def get(self, id=None):
         # The endpoint to perform the get requests
 

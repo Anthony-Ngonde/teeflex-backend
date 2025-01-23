@@ -1,7 +1,9 @@
 # The admin section part for accessing the application
 from flask_restful import Resource, reqparse
-from flask_jwt_extended import create_access_token
-from models import db, Admin, ValidationError
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
+
+
+from models import db, Admin, ValidationError, RevokedToken
 
 
 class RegisterResource(Resource):
@@ -29,7 +31,7 @@ class RegisterResource(Resource):
 
         try:
             admin = Admin(**data)
-            
+
             db.session.add(admin)
 
             db.session.commit()
@@ -71,10 +73,23 @@ class LoginResource(Resource):
                     'message': 'Login successful',
                     "status": 'success',
                     "admin": user_dict,
-                    "jwt_token": access_token
+                    "access_token": access_token
                 }, 201
 
             else:
                 return {'message': 'Invalid email/password', 'status': 'fail'}, 403
         else:
             return {'message': 'Invalid email/password', 'status': 'fail'}, 403
+
+
+class LogoutResource(Resource):
+    # Endpoint for handling the log out of a user
+    @jwt_required()
+    def post(self):
+        jti = get_jwt()["jti"]
+
+        revoked_token = RevokedToken(jti=jti)
+        db.session.add(revoked_token)
+        db.session.commit()
+
+        return {'message': 'Logout successful'}, 200

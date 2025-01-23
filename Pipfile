@@ -17,6 +17,7 @@ pytest = "*"
 flask-socketio = "*"
 requests = "*"
 schedule = "*"
+redis = "*"
 
 [dev-packages]
 
