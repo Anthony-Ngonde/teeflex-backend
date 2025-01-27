@@ -46,7 +46,7 @@ app.config['JWT_VERIFY_SUB'] = False
 db.init_app(app)
 
 # Enabling CORS
-CORS(app)
+CORS(api, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 # Initializing socketIO
 socketio = SocketIO(app)
